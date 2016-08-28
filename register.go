@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -17,6 +19,12 @@ func main() {
 	if ip == "" {
 		log.Fatal("You must set the REGISTER_IP environment variable")
 	}
+
+	// Magic undocumented value
+	if ip == "PUBLICIP" {
+		ip = getMyIP()
+	}
+
 	domain := os.Getenv("REGISTER_DOMAIN")
 	if domain == "" {
 		log.Fatal("You must set the REGISTER_DOMAIN environment variable")
@@ -80,4 +88,16 @@ func main() {
 		log.Fatalf("Error updating resource record set: %v\n", err)
 	}
 	log.Printf("Updated %v to %v", domain, ip)
+}
+
+func getMyIP() string {
+	resp, err := http.Get("http://myip.wobscale.com")
+	if err != nil {
+		log.Fatalf("Error: %v", err)
+	}
+	ip, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Error: %v", err)
+	}
+	return string(ip)
 }
