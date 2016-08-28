@@ -1,0 +1,5 @@
+FROM scratch
+COPY ./bin/cacert.pem /etc/ssl/certs/ca-certificates.crt
+COPY ./bin/route53-registerer /route53-registerer
+
+ENTRYPOINT ["/route53-registerer"]
